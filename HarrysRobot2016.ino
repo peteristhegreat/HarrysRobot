@@ -73,7 +73,7 @@ RadioShackRobotics wheels;//declare object
 bool do_turn_left = true;
 
 int state = 0; // for switching the turn state
-int speed = 50; // for how fast to turn the wheels
+int speed = 100; // for how fast to turn the wheels
 int blocked_count = 0; // how many times we have been redirected due to an obstacle in the way
 long cm = 0; // the current distance measurement
 int start_time = 0; // when we started driving
@@ -81,6 +81,7 @@ int max_time = 60; // only run for 60 seconds
 bool stopped = false;
 int factor = 1;
 bool use_random = true;
+double speed_factor = 1;
 
 void setup()
 {
@@ -97,6 +98,7 @@ void setup()
 
 void loop()
 {
+	speed_factor = 1;
 	// wait for button to be pressed
 	// after button pressed, run for 20 seconds
 	// ping distance in front of it
@@ -137,30 +139,43 @@ void loop()
 			{
 				do_turn_left = random(0,1 + 1);
 				if(do_turn_left)
-					wheels.turn_left(speed);
+					wheels.turn_left(speed*speed_factor);
 				else
-					wheels.turn_right(speed);
+					wheels.turn_right(speed*speed_factor);
 				factor = random(8,20 + 1);
 			}
 			else{
 
-
 				factor = 10;
-				switch(state++%4)
+				switch(state++%6)
 				{
 					case 0:
-						wheels.turn_front_left(speed);
+					case 3:
+						wheels.turn_left(speed*speed_factor);
 						break;
 					case 1:
-						wheels.turn_front_right(speed);
+					case 4:
+						wheels.turn_right(speed*speed_factor);
 						break;
 					case 2:
-						wheels.turn_right(speed);
+						// turn around
+						speed_factor = 1.5;
+						wheels.go_backward(speed*speed_factor);
+						delay(400);
+						wheels.turn_right(speed*speed_factor);
+						factor = 40;
 						break;
-					case 3:
+					case 5:
+						// turn around
+						speed_factor = 1.5;
+						wheels.go_backward(speed*speed_factor);
+						delay(400);
+						wheels.turn_left(speed*speed_factor);
+						factor = 40;
+					/*case 3:
 					default:
-						wheels.turn_left(speed);
-						break;
+						wheels.turn_left(speed*speed_factor);
+						break;*/
 				}
 
 			}
@@ -179,18 +194,20 @@ void loop()
 	{
 		/*if(blocked_count > 0)
 			blocked_count--;*/
-		wheels.go_forward(abs(speed));
+		if(cm < 500)
+			speed_factor = 1 + ((double) cm - 20)/500.;
+		wheels.go_forward(abs(speed*speed_factor));
 	}
 
-//	void go_forward(int speed);		//left and right motors (M1 and M2) forward
-//	void go_backward(int speed);	//left and right motors (M1 and M2) forward
-//	void turn_left(int speed);		//left motor (M1) backward and right motor (M2) forward
-//	void turn_right(int speed);		//left motor (M1) forward and right motor (M2) backward
-//	void turn_front_left(int speed);	//left and right motors (M1 and M2) forward with right motor (M2) at twice the speed of left motor (M1)
-//	void turn_front_right(int speed);   //left and right motors (M1 and M2) forward with left motor (M1) at twice the speed of right motor (M2)
+//	void go_forward(int speed*speed_factor);		//left and right motors (M1 and M2) forward
+//	void go_backward(int speed*speed_factor);	//left and right motors (M1 and M2) forward
+//	void turn_left(int speed*speed_factor);		//left motor (M1) backward and right motor (M2) forward
+//	void turn_right(int speed*speed_factor);		//left motor (M1) forward and right motor (M2) backward
+//	void turn_front_left(int speed*speed_factor);	//left and right motors (M1 and M2) forward with right motor (M2) at twice the speed of left motor (M1)
+//	void turn_front_right(int speed*speed_factor);   //left and right motors (M1 and M2) forward with left motor (M1) at twice the speed of right motor (M2)
 //	void move_stop();			////left and right motors (M1 and M2) stop
 
-	delay(100*factor);
+	delay(100*(double) factor/speed_factor);
 }
 
 void distanceToColor(long cm)
