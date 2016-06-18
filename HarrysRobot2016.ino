@@ -190,6 +190,27 @@ void loop()
 			stopped = true;
 		}*/
 	}
+	else if( cm > 200 && cm < 250)
+	{
+		// Use the catapult!
+		wheels.all_stop();           //all motors stop
+		// 5 second count down
+		for(int i = 0; i < 10; i++)
+		{
+			if(i %2 == 0)
+				setColor(0,0,0);
+			else
+				setColor(0,0,255,1);
+			delay(500);                   //delay 1000ms
+		}
+		wheels.catapult_head_pull(255);  //throw (wired backwards :(   )
+		delay(1000);                   //delay 1000ms
+		setColor(0,0,255,6);// Set to Bright Blue
+		wheels.catapult_head_throw(60);  //pull catapult arm back (wired backwards :(   )
+		delay(1000);                   //delay 1000ms
+		wheels.all_stop();           //all motor stop
+		setColor(0,0,0);// Set to Bright Blue
+	}
 	else
 	{
 		/*if(blocked_count > 0)
@@ -206,6 +227,22 @@ void loop()
 //	void turn_front_left(int speed*speed_factor);	//left and right motors (M1 and M2) forward with right motor (M2) at twice the speed of left motor (M1)
 //	void turn_front_right(int speed*speed_factor);   //left and right motors (M1 and M2) forward with left motor (M1) at twice the speed of right motor (M2)
 //	void move_stop();			////left and right motors (M1 and M2) stop
+//void RadioShackRobotics::catapult_head_pull(int speed)
+//{
+//  m4_action(BW,speed);
+//}
+
+//void RadioShackRobotics::catapult_head_throw(int speed)
+//{
+//  m4_action(FW,speed);
+//}
+
+//catapult.all_stop();           //all motors stop
+//catapult.catapult_head_throw(255);  //throw
+//delay(1000);                   //delay 1000ms
+//catapult.catapult_head_pull(60);  //pull catapult arm back
+//delay(1000);                   //delay 1000ms
+//catapult.all_stop();           //all motor stop
 
 	delay(100*(double) factor/speed_factor);
 }
@@ -236,18 +273,24 @@ void distanceToColor(long cm)
 		setColor(255,0,255);// MAGENTA
 	else if(cm < 110)
 		setColor(255,0,127);// PINK
+	else if(cm > 200 && cm < 250)
+		setColor(0,255,0, 1);// BRIGHT Green
 	else
 		setColor(0,0,0);// BLACK
 }
 
 void setColor(int red, int green, int blue)
 {
+	setColor(red, green, blue, 12);
+}
+
+void setColor(int red, int green, int blue, int divisor)
+{
   #ifdef COMMON_ANODE
     red = 255 - red;
     green = 255 - green;
     blue = 255 - blue;
   #endif
-  int divisor = 12;
   analogWrite(redPin, red/divisor);
   analogWrite(greenPin, green/divisor);
   analogWrite(bluePin, blue/divisor);
