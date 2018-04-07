@@ -190,7 +190,7 @@ void loop()
 			stopped = true;
 		}*/
 	}
-	else if( cm > 200 && cm < 250)
+	else if( cm > 100 && cm < 110)
 	{
 		// Use the catapult!
 		wheels.all_stop();           //all motors stop
@@ -200,16 +200,24 @@ void loop()
 			if(i %2 == 0)
 				setColor(0,0,0);
 			else
-				setColor(0,0,255,1);
+				setColor(0,255,0,1);
 			delay(500);                   //delay 1000ms
 		}
-		wheels.catapult_head_pull(255);  //throw (wired backwards :(   )
+		wheels.catapult_head_throw(255);  //throw (wired backwards :(   )
 		delay(1000);                   //delay 1000ms
 		setColor(0,0,255,6);// Set to Bright Blue
-		wheels.catapult_head_throw(60);  //pull catapult arm back (wired backwards :(   )
+		wheels.catapult_head_pull(60);  //pull catapult arm back (wired backwards :(   )
 		delay(1000);                   //delay 1000ms
 		wheels.all_stop();           //all motor stop
 		setColor(0,0,0);// Set to Bright Blue
+
+		if(cm < 500)
+			speed_factor = 1 + ((double) cm - 20)/500.;
+		wheels.go_forward(abs(speed*speed_factor));
+
+		// drive for at least a second
+		int seconds = 2;
+		factor = 10*seconds*speed_factor;
 	}
 	else
 	{
@@ -218,6 +226,10 @@ void loop()
 		if(cm < 500)
 			speed_factor = 1 + ((double) cm - 20)/500.;
 		wheels.go_forward(abs(speed*speed_factor));
+
+		// drive for at least a second
+		int seconds = 1;
+		factor = 10*seconds*speed_factor;
 	}
 
 //	void go_forward(int speed*speed_factor);		//left and right motors (M1 and M2) forward
@@ -273,8 +285,8 @@ void distanceToColor(long cm)
 		setColor(255,0,255);// MAGENTA
 	else if(cm < 110)
 		setColor(255,0,127);// PINK
-	else if(cm > 200 && cm < 250)
-		setColor(0,255,0, 1);// BRIGHT Green
+	/*else if(cm > 200 && cm < 250)
+		setColor(0,255,0, 1);// BRIGHT Green*/
 	else
 		setColor(0,0,0);// BLACK
 }
